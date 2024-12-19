@@ -8,23 +8,6 @@ YELLOW='\033[0;33m'
 NC='\033[0m'
 
 # Display welcome message
-display_welcome() {
-  echo -e ""
-  echo -e "${BLUE}[+] =============================================== [+]${NC}"
-  echo -e "${BLUE}[+]                                                 [+]${NC}"
-  echo -e "${BLUE}[+]                AUTO INSTALLER THEMA             [+]${NC}"
-  echo -e "${BLUE}[+]                  © SANO OFFICIAL               [+]${NC}"
-  echo -e "${BLUE}[+]                                                 [+]${NC}"
-  echo -e "${RED}[+] =============================================== [+]${NC}"
-  echo -e ""
-  echo -e "script ini di buat untuk mempermudah penginstalasian thema pterodactyl,"
-  echo -e "Dilarang Keras Share Bebas."
-  echo -e ""
-  echo -e "𝗖𝗥𝗘𝗗𝗜𝗧𝗦 :"
-  echo -e "By Sano Official"
-  sleep 4
-  clear
-}
 
 #Update and install jq
 install_jq() {
@@ -439,9 +422,7 @@ EOF
   exit 0
 }
 # Main script
-display_welcome
 install_jq
-check_token
 
 while true; do
   clear
