@@ -164,14 +164,17 @@ elif [ "$SELECT_THEME" -eq 3 ]; then
     # Menanyakan informasi kepada pengguna untuk tema Enigma
     echo -e "${YELLOW}Masukkan link wa (https://wa.me/...) : ${NC}"
     read LINK_WA
-    echo -e "${YELLOW}Masukkan link group (https://chat.whatsapp.com/...) : ${NC}"
-    read LINK_GROUP
+    echo -e "${YELLOW}Masukkan link group 1 (https://chat.whatsapp.com/...) : ${NC}"
+    read LINK_GROUP1
+    echo -e "${YELLOW}Masukkan link group 2 (https://chat.whatsapp.com/...) : ${NC}"
+    read LINK_GROUP2
     echo -e "${YELLOW}Masukkan link channel (https://whatsapp.com/channel/...) : ${NC}"
     read LINK_CHNL
 
     # Mengganti placeholder dengan nilai dari pengguna
     sudo sed -i "s|LINK_WA|$LINK_WA|g" /root/pterodactyl/resources/scripts/components/dashboard/DashboardContainer.tsx
-    sudo sed -i "s|LINK_GROUP|$LINK_GROUP|g" /root/pterodactyl/resources/scripts/components/dashboard/DashboardContainer.tsx
+    sudo sed -i "s|LINK_GROUP1|$LINK_GROUP1|g" /root/pterodactyl/resources/scripts/components/dashboard/DashboardContainer.tsx
+    sudo sed -i "s|LINK_GROUP2|$LINK_GROUP2|g" /root/pterodactyl/resources/scripts/components/dashboard/DashboardContainer.tsx
     sudo sed -i "s|LINK_CHNL|$LINK_CHNL|g" /root/pterodactyl/resources/scripts/components/dashboard/DashboardContainer.tsx
     
 
@@ -381,7 +384,7 @@ cd /var/www/pterodactyl || { echo "Direktori tidak ditemukan"; exit 1; }
 # Membuat lokasi baru
 php artisan p:user:make <<EOF
 yes
-hackback@gmail.com
+admin@sano.com
 $user
 $user
 $user
