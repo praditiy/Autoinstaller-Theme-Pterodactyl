@@ -34,15 +34,15 @@ _\* di atas adalah os yang saya test, selebihnya bisa di test sendiri._
 ---
 Screenshots:
 ### Mainpage
-![Mainpage](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/images/Serverliste.png "Mainpage")
+![Mainpage](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/Serverliste.png "Mainpage")
 ### Login
-![Login](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/images/Login.png "Login")
+![Login](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/Login.png "Login")
 ### Files
-![Files](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/images/Files.png "Files")
+![Files](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/Files.png "Files")
 ### Editor
-![Editor](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/images/Editor.png "Editor")
+![Editor](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/Editor.png "Editor")
 ### Terminal
-![Terminal](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/images/Terminal.png "Terminal")
+![Terminal](https://raw.githubusercontent.com/Bangsano/Autoinstaller-Theme-Pterodactyl/main/Terminal.png "Terminal")
 
 
 ## Credits 
