@@ -85,10 +85,10 @@ installThemeNightCore(){
     apt install nodejs -y > /dev/null 2>&1
     
     NODE_VERSION=$(node -v)
-    REQUIRED_VERSION="v16.20.2"
+    REQUIRED_VERSION="v18.20.6"
     if [ "$NODE_VERSION" != "$REQUIRED_VERSION" ]; then
         echo -e "${GREEN}Node.js version is not ${YELLOW}${REQUIRED_VERSION}${GREEN}. Version: ${YELLOW}${NODE_VERSION}${RESET}"
-        echo -e "${GREEN}Set version to ${YELLOW}v16.20.2${GREEN}... ${RESET}"
+        echo -e "${GREEN}Set version to ${YELLOW}v18.20.6${GREEN}... ${RESET}"
         sudo npm install -g n > /dev/null 2>&1
         sudo n 16 > /dev/null 2>&1
         node -v > /dev/null 2>&1
