@@ -87,22 +87,27 @@ install_theme() {
     echo "1. stellar"
     echo "2. billing"
     echo "3. enigma"
+    echo "4. elysium"
+    echo "5. nebula (wajib install depend terlebih dahulu)"
     echo "x. kembali"
-    echo -e "Masukkan pilihan (1/2/3/x) :"
+    echo -e "Masukkan pilihan (1/2/3/4/5/x) :"
     read -r SELECT_THEME
     case "$SELECT_THEME" in
       1)
-        THEME_URL=$(echo -e "https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl/raw/main/stellar.zip")        
-        break
+        THEME_URL=$(echo -e "https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl/raw/main/stellar.zip")  
         ;;
       2)
         THEME_URL=$(echo -e "https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl/raw/main/billing.zip")
-        break
         ;;
       3)
         THEME_URL=$(echo -e "https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl/raw/main/enigma.zip")
-        break
         ;; 
+      4)
+      install_elysium_theme
+      ;;
+      5)
+      install_nebula_theme
+      ;;
       x)
         return
         ;;
@@ -442,6 +447,227 @@ EOF
   
   exit 0
 }
+
+# Install Dependencies Untuk Nebula Dan Elysium
+install_depend() {
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]           INSTALL NODE.JS & BLUEPRINT           [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "                                                       "
+
+    # Install dependensi dasar
+    sudo apt-get install -y ca-certificates curl gnupg
+    sudo mkdir -p /etc/apt/keyrings
+
+    # Menambahkan kunci repositori Node.js
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+
+    # Menambahkan sumber paket Node.js versi 20.x
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+
+    # Memperbarui daftar paket dan menginstal Node.js
+    sudo apt-get update
+    sudo apt-get install -y nodejs
+    npm i -g yarn
+
+    # Navigasi ke direktori Pterodactyl
+    cd /var/www/pterodactyl
+
+    # Menginstal dependensi dengan Yarn
+    yarn
+    yarn add cross-env
+
+    # Install dependensi tambahan
+    sudo apt install -y zip unzip git curl wget
+
+    # Mengunduh Blueprint Framework versi terbaru
+    wget "$(curl -s https://api.github.com/repos/BlueprintFramework/framework/releases/latest | grep 'browser_download_url' | cut -d '"' -f 4)" -O release.zip
+
+    # Memindahkan dan mengekstrak file release
+    mv release.zip /var/www/pterodactyl/release.zip
+    cd /var/www/pterodactyl
+    unzip release.zip
+
+    # Konfigurasi permission dan eksekusi blueprint.sh
+    WEBUSER="www-data"
+    USERSHELL="/bin/bash"
+    PERMISSIONS="www-data:www-data"
+
+    sed -i -E -e "s|WEBUSER=\"www-data\" #;|WEBUSER=\"$WEBUSER\" #;|g" \
+               -e "s|USERSHELL=\"/bin/bash\" #;|USERSHELL=\"$USERSHELL\" #;|g" \
+               -e "s|OWNERSHIP=\"www-data:www-data\" #;|OWNERSHIP=\"$PERMISSIONS\" #;|g" blueprint.sh
+
+    chmod +x blueprint.sh
+    bash blueprint.sh
+
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]        INSTALLASI NODE.JS & BLUEPRINT SELESAI   [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "                                                       "
+
+    sleep 2
+}
+
+# Nebula Theme
+install_nebula_theme() {
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]                INSTALASI NEBULA THEME                 [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "                                                       "
+
+    local BLUEPRINT_FILE="/var/www/pterodactyl/blueprint.sh"
+    
+    if [ ! -f "$BLUEPRINT_FILE" ]; then
+        echo "𝗗𝗘𝗣𝗘𝗡𝗗 𝗣𝗟𝗨𝗚𝗜𝗡𝗦 𝗕𝗘𝗟𝗨𝗠 𝗗𝗜𝗜𝗡𝗦𝗧𝗔𝗟. 𝗦𝗜𝗟𝗔𝗛𝗞𝗔𝗡 𝗜𝗡𝗦𝗧𝗔𝗟𝗟 𝗗𝗘𝗡𝗚𝗔𝗡 𝗢𝗣𝗦𝗜 𝗡𝗢 𝟭𝟭"
+        exit 1
+    fi
+
+    # Token GitHub
+    local GITHUB_TOKEN="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"
+    local REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
+    local TEMP_DIR="Autoinstaller-Theme-Pterodactyl"
+
+    echo -e "${BLUE}🔄 Mengkloning repositori...${NC}"
+    git clone "$REPO_URL"
+
+    if [ ! -d "$TEMP_DIR" ]; then
+        echo -e "${RED}❌ Gagal mengkloning repositori.${NC}"
+        exit 1
+    fi
+
+    echo -e "${BLUE}📦 Memindahkan dan mengekstrak file...${NC}"
+    mv "$TEMP_DIR/nebulaptero.zip" /var/www/
+    unzip -o /var/www/nebulaptero.zip -d /var/www/
+
+    echo -e "${BLUE}⚙️ Menginstal blueprint...${NC}"
+    cd /var/www/pterodactyl && blueprint -install nebula
+
+    echo -e "${BLUE}🧹 Membersihkan file sementara...${NC}"
+    rm -rf "/var/www/$TEMP_DIR" "/var/www/nebulaptero.zip" "/var/www/pterodactyl/nebula.blueprint"
+
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]           NEBULA THEME BERHASIL DIINSTALL          [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "                                                       "
+    
+    sleep 2
+}
+
+# Elysium Theme
+install_elysium_theme() {
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]             INSTALLASI ELYSIUM THEME           [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "                                                       "
+
+    # Masukkan token GitHub langsung di sini
+    GITHUB_TOKEN="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"
+
+    # Clone repositori menggunakan token
+    REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
+    TEMP_DIR="Autoinstaller-Theme-Pterodactyl"
+
+    # Mengkloning repositori
+    git clone "$REPO_URL"
+
+    # Memindahkan file ZIP tema ke direktori yang sesuai
+    sudo mv "$TEMP_DIR/ElysiumTheme.zip" /var/www/
+
+    # Mengekstrak file ZIP dengan opsi untuk menggantikan file tanpa konfirmasi
+    unzip -o /var/www/ElysiumTheme.zip -d /var/www/
+
+    # Membersihkan file yang tidak diperlukan
+    rm -r installer-premium
+    rm /var/www/ElysiumTheme.zip
+
+    # Membuat direktori untuk menyimpan kunci APT jika belum ada
+    sudo mkdir -p /etc/apt/keyrings
+
+    # Menyimpan output dan tidak meminta konfirmasi jika terjadi error
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
+
+    # Menambahkan repository Node.js versi 16
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_16.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+
+    # Memperbarui daftar paket dan menginstal Node.js
+    sudo apt update
+    sudo apt install -y nodejs npm
+
+    # Menginstal Yarn
+    npm i -g yarn
+
+    # Navigasi ke direktori Pterodactyl
+    cd /var/www/pterodactyl
+
+    # Menginstal dependensi dan membangun produksi dengan Yarn
+    yarn
+    yarn build:production
+
+    # Menjalankan perintah Artisan untuk memperbarui database dan membersihkan cache
+    php artisan migrate
+    php artisan view:clear
+
+    # Menampilkan pesan sukses
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]          ELYSIUM THEME BERHASIL DIINSTALL       [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "                                                       "
+
+    sleep 2
+}
+
+# Uninstall Addon & Theme Nebula
+hapus_theme_addon() {
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]         MENGHAPUS SEMUA THEME & ADDON          [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "                                                       "
+
+    # Navigasi ke direktori Pterodactyl
+    cd /var/www/pterodactyl
+
+    # Menonaktifkan panel sementara
+    php artisan down
+
+    # Mengunduh dan mengekstrak versi terbaru panel Pterodactyl
+    curl -L https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz | tar -xzv 
+
+    # Mengatur izin direktori yang diperlukan
+    chmod -R 755 storage/* bootstrap/cache 
+
+    # Menginstal dependensi menggunakan Composer
+    composer install --no-dev --optimize-autoloader
+
+    # Membersihkan cache tampilan dan konfigurasi
+    php artisan view:clear
+    php artisan config:clear
+
+    # Menjalankan migrasi dan seeding database secara paksa
+    php artisan migrate --seed --force
+
+    # Mengatur kepemilikan file ke www-data
+    chown -R www-data:www-data /var/www/pterodactyl/*
+
+    # Mengaktifkan kembali panel
+    php artisan up
+
+    # Menampilkan pesan sukses
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]       SEMUA THEME & ADDON TELAH DIHAPUS        [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "                                                       "
+
+    sleep 2
+}
+
 # Main script
 install_jq
 
@@ -474,8 +700,10 @@ while true; do
   echo "6. Stellar Theme"
   echo "7. Hack Back Panel"
   echo "8. Ubah Pw Vps"
+  echo "9. Install Depend"
+  echo "10. Uninstall Addon/Theme Nebula"
   echo "x. Exit"
-  echo -e "Masukkan pilihan 1/2/3/4/5/6/7/8/x:"
+  echo -e "Masukkan pilihan 1/2/3/4/5/6/7/8/9/10/x:"
   read -r MENU_CHOICE
   clear
 
@@ -503,6 +731,12 @@ while true; do
       ;;
       8)
       ubahpw_vps
+      ;;
+      9)
+      install_depend
+      ;;
+      10)
+      hapus_theme_addon
       ;;
     x)
       echo "Keluar dari skrip."
