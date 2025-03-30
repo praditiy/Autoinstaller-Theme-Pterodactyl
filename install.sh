@@ -526,7 +526,7 @@ install_nebula_theme() {
     fi
 
     # Token GitHub
-    local GITHUB_TOKEN="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"
+    local GITHUB_TOKEN="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"
     local REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
     local TEMP_DIR="Autoinstaller-Theme-Pterodactyl"
 
@@ -566,7 +566,7 @@ install_elysium_theme() {
     echo -e "                                                       "
 
     # Masukkan token GitHub langsung di sini
-    GITHUB_TOKEN="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"
+    GITHUB_TOKEN="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"
 
     # Clone repositori menggunakan token
     REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
