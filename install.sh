@@ -130,7 +130,7 @@ if [ "$SELECT_THEME" -eq 1 ]; then
   echo -e "${BLUE}[+] =============================================== [+]${NC}"
   echo -e "                                                                   "
   sudo cp -rfT /root/pterodactyl /var/www/pterodactyl
-  curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+  curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
   sudo apt install -y nodejs
   sudo npm i -g yarn
   cd /var/www/pterodactyl
@@ -157,7 +157,7 @@ elif [ "$SELECT_THEME" -eq 2 ]; then
   echo -e "${BLUE}[+] =============================================== [+]${NC}"
   echo -e "                                                       "
   sudo cp -rfT /root/pterodactyl /var/www/pterodactyl
-  curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+  curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
   sudo apt install -y nodejs
   npm i -g yarn
   cd /var/www/pterodactyl
@@ -202,7 +202,7 @@ elif [ "$SELECT_THEME" -eq 3 ]; then
     sudo sed -i "s|LINK_CHNL|$LINK_CHNL|g" /root/pterodactyl/resources/scripts/components/dashboard/DashboardContainer.tsx
 
   sudo cp -rfT /root/pterodactyl /var/www/pterodactyl
-  curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+  curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
   sudo apt install -y nodejs
   sudo npm i -g yarn
   cd /var/www/pterodactyl
@@ -262,7 +262,7 @@ unzip /root/stellar.zip -d /root/pterodactyl
 sudo cp -rfT /root/pterodactyl /var/www/pterodactyl
 
 # Instal Node.js dan Yarn
-curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt install -y nodejs
 sudo npm i -g yarn
 
@@ -582,7 +582,7 @@ install_elysium_theme() {
     unzip -o /var/www/ElysiumTheme.zip -d /var/www/
 
     # Membersihkan file yang tidak diperlukan
-    rm -r installer-premium
+    rm -r Autoinstaller-Theme-Pterodactyl
     rm /var/www/ElysiumTheme.zip
 
     # Membuat direktori untuk menyimpan kunci APT jika belum ada
@@ -592,7 +592,7 @@ install_elysium_theme() {
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
 
     # Menambahkan repository Node.js versi 16
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_16.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 
     # Memperbarui daftar paket dan menginstal Node.js
     sudo apt update
