@@ -525,13 +525,12 @@ install_nebula_theme() {
         exit 1
     fi
 
-    # Token GitHub
-    local GITHUB_TOKEN="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"
+    # URL Repositori (gunakan HTTPS tanpa autentikasi)
     local REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
     local TEMP_DIR="Autoinstaller-Theme-Pterodactyl"
 
     echo -e "${BLUE}🔄 Mengkloning repositori...${NC}"
-    git clone "$REPO_URL"
+    git clone --depth=1 "$REPO_URL"
 
     if [ ! -d "$TEMP_DIR" ]; then
         echo -e "${RED}❌ Gagal mengkloning repositori.${NC}"
@@ -546,7 +545,7 @@ install_nebula_theme() {
     cd /var/www/pterodactyl && blueprint -install nebula
 
     echo -e "${BLUE}🧹 Membersihkan file sementara...${NC}"
-    rm -rf "/var/www/$TEMP_DIR" "/var/www/nebulaptero.zip" "/var/www/pterodactyl/nebula.blueprint"
+    rm -rf "$TEMP_DIR" "/var/www/nebulaptero.zip" "/var/www/pterodactyl/nebula.blueprint"
 
     echo -e "                                                       "
     echo -e "${GREEN}[+] =============================================== [+]${NC}"
@@ -565,66 +564,55 @@ install_elysium_theme() {
     echo -e "${GREEN}[+] =============================================== [+]${NC}"
     echo -e "                                                       "
 
-    # Masukkan token GitHub langsung di sini
-    GITHUB_TOKEN="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"
-
-    # Clone repositori menggunakan token
+    # Repositori tema
     REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
     TEMP_DIR="Autoinstaller-Theme-Pterodactyl"
 
-    # Mengkloning repositori
-    git clone "$REPO_URL"
+    echo -e "${BLUE}🔄 Mengkloning repositori...${NC}"
+    git clone --depth=1 "$REPO_URL"
 
-    # Memindahkan file ZIP tema ke direktori yang sesuai
-    sudo mv "$TEMP_DIR/ElysiumTheme.zip" /var/www/
+    if [ ! -d "$TEMP_DIR" ]; then
+        echo -e "${RED}❌ Gagal mengkloning repositori.${NC}"
+        exit 1
+    fi
 
-    # Mengekstrak file ZIP dengan opsi untuk menggantikan file tanpa konfirmasi
+    echo -e "${BLUE}📦 Memindahkan dan mengekstrak file...${NC}"
+    mv "$TEMP_DIR/ElysiumTheme.zip" /var/www/
     unzip -o /var/www/ElysiumTheme.zip -d /var/www/
 
-    # Membersihkan file yang tidak diperlukan
-    rm -r Autoinstaller-Theme-Pterodactyl
-    rm /var/www/ElysiumTheme.zip
+    echo -e "${BLUE}🧹 Membersihkan file sementara...${NC}"
+    rm -rf "$TEMP_DIR" /var/www/ElysiumTheme.zip
 
-    # Membuat direktori untuk menyimpan kunci APT jika belum ada
+    echo -e "${BLUE}🔑 Menyiapkan APT keyring untuk Node.js...${NC}"
     sudo mkdir -p /etc/apt/keyrings
-
-    # Menyimpan output dan tidak meminta konfirmasi jika terjadi error
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
 
-    # Menambahkan repository Node.js versi 18
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_16.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+    echo -e "${BLUE}📌 Menambahkan repository Node.js...${NC}"
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 
-    # Memperbarui daftar paket dan menginstal Node.js serta OpenSSL
+    echo -e "${BLUE}📦 Mengupdate sistem dan menginstal dependensi...${NC}"
     sudo apt update
     sudo apt install -y nodejs npm openssl
 
-    # Mengecek versi OpenSSL
-    OPENSSL_VERSION=$(openssl version)
-    echo "OpenSSL version: $OPENSSL_VERSION"
+    echo -e "${BLUE}🔍 Mengecek versi OpenSSL dan Node.js...${NC}"
+    echo "OpenSSL version: $(openssl version)"
+    echo "Node.js OpenSSL version: $(node -p 'process.versions.openssl')"
 
-    # Memastikan Node.js mengenali OpenSSL
-    NODE_OPENSSL_VERSION=$(node -p "process.versions.openssl")
-    echo "Node.js OpenSSL version: $NODE_OPENSSL_VERSION"
-
-    # Menginstal Yarn
+    echo -e "${BLUE}📦 Menginstal Yarn...${NC}"
     npm i -g yarn
 
-    # Navigasi ke direktori Pterodactyl
+    echo -e "${BLUE}⚙️ Mempersiapkan Pterodactyl...${NC}"
     cd /var/www/pterodactyl
-
-    # Menginstal dependensi dan membangun produksi dengan Yarn
     yarn
 
-    # Mengatasi error OpenSSL
+    echo -e "${BLUE}🚀 Membangun tema dengan Yarn...${NC}"
     export NODE_OPTIONS=--openssl-legacy-provider
-
     yarn build:production
 
-    # Menjalankan perintah Artisan untuk memperbarui database dan membersihkan cache
+    echo -e "${BLUE}🔄 Menjalankan Artisan untuk update database...${NC}"
     php artisan migrate
     php artisan view:clear
 
-    # Menampilkan pesan sukses
     echo -e "                                                       "
     echo -e "${GREEN}[+] =============================================== [+]${NC}"
     echo -e "${GREEN}[+]          ELYSIUM THEME BERHASIL DIINSTALL       [+]${NC}"
