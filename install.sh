@@ -591,12 +591,20 @@ install_elysium_theme() {
     # Menyimpan output dan tidak meminta konfirmasi jika terjadi error
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
 
-    # Menambahkan repository Node.js versi 16
+    # Menambahkan repository Node.js versi 18
     echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 
-    # Memperbarui daftar paket dan menginstal Node.js
+    # Memperbarui daftar paket dan menginstal Node.js serta OpenSSL
     sudo apt update
-    sudo apt install -y nodejs npm
+    sudo apt install -y nodejs npm openssl
+
+    # Mengecek versi OpenSSL
+    OPENSSL_VERSION=$(openssl version)
+    echo "OpenSSL version: $OPENSSL_VERSION"
+
+    # Memastikan Node.js mengenali OpenSSL
+    NODE_OPENSSL_VERSION=$(node -p "process.versions.openssl")
+    echo "Node.js OpenSSL version: $NODE_OPENSSL_VERSION"
 
     # Menginstal Yarn
     npm i -g yarn
@@ -606,6 +614,10 @@ install_elysium_theme() {
 
     # Menginstal dependensi dan membangun produksi dengan Yarn
     yarn
+
+    # Mengatasi error OpenSSL
+    export NODE_OPTIONS=--openssl-legacy-provider
+
     yarn build:production
 
     # Menjalankan perintah Artisan untuk memperbarui database dan membersihkan cache
