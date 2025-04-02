@@ -573,7 +573,7 @@ install_elysium_theme() {
     REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
     TEMP_DIR="Autoinstaller-Theme-Pterodactyl"
 
-    echo -e "${BLUE}🔄 Mengkloning repositori...${NC}"
+    echo -e "${GREEN}🔄 Mengkloning repositori...${NC}"
     git clone --depth=1 "$REPO_URL"
 
     if [ ! -d "$TEMP_DIR" ]; then
@@ -581,92 +581,46 @@ install_elysium_theme() {
         exit 1
     fi
 
-    echo -e "${BLUE}📦 Memindahkan dan mengekstrak file...${NC}"
+    echo -e "${GREEN}📦 Memindahkan dan mengekstrak file...${NC}"
     mv "$TEMP_DIR/ElysiumTheme.zip" /var/www/
     unzip -o /var/www/ElysiumTheme.zip -d /var/www/
 
-    echo -e "${BLUE}🧹 Membersihkan file sementara...${NC}"
+    echo -e "${GREEN}🧹 Membersihkan file sementara...${NC}"
     rm -rf "$TEMP_DIR" /var/www/ElysiumTheme.zip
 
-    echo -e "${BLUE}🔑 Menyiapkan APT keyring untuk Node.js...${NC}"
+    echo -e "${GREEN}🔑 Menyiapkan APT keyring untuk Node.js...${NC}"
     sudo mkdir -p /etc/apt/keyrings
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
 
-    echo -e "${BLUE}📌 Menambahkan repository Node.js...${NC}"
+    echo -e "${GREEN}📌 Menambahkan repository Node.js...${NC}"
     echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 
-    echo -e "${BLUE}📦 Mengupdate sistem dan menginstal dependensi...${NC}"
+    echo -e "${GREEN}📦 Mengupdate sistem dan menginstal dependensi...${NC}"
     sudo apt update
     sudo apt install -y nodejs npm openssl
 
-    echo -e "${BLUE}🔍 Mengecek versi OpenSSL dan Node.js...${NC}"
+    echo -e "${GREEN}🔍 Mengecek versi OpenSSL dan Node.js...${NC}"
     echo "OpenSSL version: $(openssl version)"
     echo "Node.js OpenSSL version: $(node -p 'process.versions.openssl')"
 
-    echo -e "${BLUE}📦 Menginstal Yarn...${NC}"
+    echo -e "${GREEN}📦 Menginstal Yarn...${NC}"
     npm i -g yarn
 
-    echo -e "${BLUE}⚙️ Mempersiapkan Pterodactyl...${NC}"
+    echo -e "${GREEN}⚙️ Mempersiapkan Pterodactyl...${NC}"
     cd /var/www/pterodactyl
     yarn
 
-    echo -e "${BLUE}🚀 Membangun tema dengan Yarn...${NC}"
+    echo -e "${GREEN}🚀 Membangun tema dengan Yarn...${NC}"
     export NODE_OPTIONS=--openssl-legacy-provider
     yarn build:production
 
-    echo -e "${BLUE}🔄 Menjalankan Artisan untuk update database...${NC}"
+    echo -e "${GREEN}🔄 Menjalankan Artisan untuk update database...${NC}"
     php artisan migrate
     php artisan view:clear
 
     echo -e "                                                       "
     echo -e "${GREEN}[+] =============================================== [+]${NC}"
     echo -e "${GREEN}[+]          ELYSIUM THEME BERHASIL DIINSTALL       [+]${NC}"
-    echo -e "${GREEN}[+] =============================================== [+]${NC}"
-    echo -e "                                                       "
-
-    sleep 2
-}
-
-# Uninstall Addon & Theme Nebula
-hapus_theme_addon() {
-    echo -e "                                                       "
-    echo -e "${GREEN}[+] =============================================== [+]${NC}"
-    echo -e "${GREEN}[+]         MENGHAPUS SEMUA THEME & ADDON          [+]${NC}"
-    echo -e "${GREEN}[+] =============================================== [+]${NC}"
-    echo -e "                                                       "
-
-    # Navigasi ke direktori Pterodactyl
-    cd /var/www/pterodactyl
-
-    # Menonaktifkan panel sementara
-    php artisan down
-
-    # Mengunduh dan mengekstrak versi terbaru panel Pterodactyl
-    curl -L https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz | tar -xzv 
-
-    # Mengatur izin direktori yang diperlukan
-    chmod -R 755 storage/* bootstrap/cache 
-
-    # Menginstal dependensi menggunakan Composer
-    composer install --no-dev --optimize-autoloader
-
-    # Membersihkan cache tampilan dan konfigurasi
-    php artisan view:clear
-    php artisan config:clear
-
-    # Menjalankan migrasi dan seeding database secara paksa
-    php artisan migrate --seed --force
-
-    # Mengatur kepemilikan file ke www-data
-    chown -R www-data:www-data /var/www/pterodactyl/*
-
-    # Mengaktifkan kembali panel
-    php artisan up
-
-    # Menampilkan pesan sukses
-    echo -e "                                                       "
-    echo -e "${GREEN}[+] =============================================== [+]${NC}"
-    echo -e "${GREEN}[+]       SEMUA THEME & ADDON TELAH DIHAPUS        [+]${NC}"
     echo -e "${GREEN}[+] =============================================== [+]${NC}"
     echo -e "                                                       "
 
@@ -739,9 +693,6 @@ while true; do
       ;;
       9)
       install_depend
-      ;;
-      10)
-      hapus_theme_addon
       ;;
     x)
       echo "Keluar dari skrip."
