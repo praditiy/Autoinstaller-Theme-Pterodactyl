@@ -95,18 +95,23 @@ install_theme() {
     case "$SELECT_THEME" in
       1)
         THEME_URL=$(echo -e "https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl/raw/main/stellar.zip")  
+        break
         ;;
       2)
         THEME_URL=$(echo -e "https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl/raw/main/billing.zip")
+        break
         ;;
       3)
         THEME_URL=$(echo -e "https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl/raw/main/enigma.zip")
+        break
         ;; 
       4)
       install_elysium_theme
+      break
       ;;
       5)
       install_nebula_theme
+      break
       ;;
       x)
         return
