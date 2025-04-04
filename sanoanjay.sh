@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# Pastikan skrip dijalankan sebagai root
+# Periksa apakah skrip dijalankan sebagai root
 if [ "$EUID" -ne 0 ]; then
     echo "Harap jalankan skrip ini sebagai root."
     exit 1
 fi
 
-# Tanyakan User ID yang tidak boleh dihapus
-read -p "Masukkan User ID yang tidak boleh dihapus (contoh: 1): " PROTECTED_USER_ID
+# Minta input User ID yang tidak boleh dihapus
+echo -n "Masukkan User ID yang tidak boleh dihapus (contoh: 1): "
+read PROTECTED_USER_ID
 
 # Pastikan input adalah angka
 if [[ ! "$PROTECTED_USER_ID" =~ ^[0-9]+$ ]]; then
@@ -18,28 +19,22 @@ fi
 # Path ke UserController.php
 CONTROLLER_PATH="/var/www/pterodactyl/app/Http/Controllers/Admin/UserController.php"
 
-# Tambahkan validasi tanpa merusak kode lain
+# Tambahkan validasi ke UserController.php tanpa menghapus kode lain
 if [ -f "$CONTROLLER_PATH" ]; then
     echo "Menambahkan validasi ke UserController.php..."
-
-    # Cek apakah validasi sudah ada
     if ! grep -q "Dilarang Menghapus Admin Utama Panel" "$CONTROLLER_PATH"; then
-        # Sisipkan validasi dengan aman
-        sed -i "/public function delete(Request \$request, User \$user): RedirectResponse {/a \    
-        if (\$user->id === $PROTECTED_USER_ID) { \
-            throw new \Pterodactyl\Exceptions\DisplayException('Dilarang Menghapus Admin Utama Panel'); \
-        }" "$CONTROLLER_PATH"
-
+        sed -i "/public function delete(Request \$request, User \$user): RedirectResponse {/a \
+        \ \ \ \ if (\$user->id === $PROTECTED_USER_ID) { throw new DisplayException('Dilarang Menghapus Admin Utama Panel'); }" "$CONTROLLER_PATH"
         echo "Validasi berhasil ditambahkan."
     else
         echo "Validasi sudah ada, melewati langkah ini."
     fi
 else
-    echo "File UserController.php tidak ditemukan di $CONTROLLER_PATH."
+    echo "File UserController.php tidak ditemukan."
     exit 1
 fi
 
-# Pastikan Node.js versi terbaru terinstal (minimal versi 18)
+# Pastikan Node.js versi 18 atau lebih baru terinstal
 NODE_VERSION=$(node -v 2>/dev/null | grep -oP '[0-9]+' | head -1)
 if [ -z "$NODE_VERSION" ] || [ "$NODE_VERSION" -lt 18 ]; then
     echo "Menginstal Node.js 18..."
@@ -57,8 +52,10 @@ else
     echo "Yarn sudah terinstal."
 fi
 
-# Jalankan yarn dan build frontend
-cd /var/www/pterodactyl || exit
+# Masuk ke direktori Pterodactyl
+cd /var/www/pterodactyl || { echo "Direktori Pterodactyl tidak ditemukan."; exit 1; }
+
+# Jalankan Yarn dan build frontend
 echo "Menjalankan Yarn..."
 yarn
 
@@ -66,14 +63,19 @@ echo "Membangun aset frontend..."
 export NODE_OPTIONS=--openssl-legacy-provider
 yarn build:production
 
-# Bersihkan cache Laravel sebagai user pterodactyl
+# Perbaiki izin folder storage dan logs
+chown -R pterodactyl:pterodactyl storage logs
+chmod -R 775 storage logs
+
+# Bersihkan cache Laravel
 echo "Membersihkan cache Laravel..."
 sudo -u pterodactyl php artisan config:clear
 sudo -u pterodactyl php artisan cache:clear
 sudo -u pterodactyl php artisan route:clear
 sudo -u pterodactyl php artisan view:clear
 
-# Restart layanan Pterodactyl untuk menerapkan perubahan
+# Jalankan ulang layanan Pterodactyl
+echo "Restarting Pterodactyl services..."
 systemctl restart pteroq
 systemctl restart wings
 
