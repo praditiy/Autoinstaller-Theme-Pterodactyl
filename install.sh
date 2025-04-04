@@ -87,10 +87,8 @@ install_theme() {
     echo "1. stellar"
     echo "2. billing"
     echo "3. enigma"
-    echo "4. elysium"
-    echo "5. nebula (wajib install depend terlebih dahulu)"
     echo "x. kembali"
-    echo -e "Masukkan pilihan (1/2/3/4/5/x) :"
+    echo -e "Masukkan pilihan (1/2/3/x) :"
     read -r SELECT_THEME
     case "$SELECT_THEME" in
       1)
@@ -105,14 +103,6 @@ install_theme() {
         THEME_URL=$(echo -e "https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl/raw/main/enigma.zip")
         break
         ;; 
-      4)
-      install_elysium_theme
-      break
-      ;;
-      5)
-      install_nebula_theme
-      break
-      ;;
       x)
         return
         ;;
@@ -660,9 +650,10 @@ while true; do
   echo "7. Hack Back Panel"
   echo "8. Ubah Pw Vps"
   echo "9. Install Depend"
-  echo "10. Uninstall Addon/Theme Nebula"
+  echo "10. Install Tema Nebula (wajib install depend terlebih dahulu)"
+  echo "11. Install Tema Elysium"
   echo "x. Exit"
-  echo -e "Masukkan pilihan 1/2/3/4/5/6/7/8/9/10/x:"
+  echo -e "Masukkan pilihan 1/2/3/.../x:"
   read -r MENU_CHOICE
   clear
 
@@ -693,6 +684,12 @@ while true; do
       ;;
       9)
       install_depend
+      ;;
+      10)
+      install_nebula_theme
+      ;;
+      11)
+      install_elysium_theme
       ;;
     x)
       echo "Keluar dari skrip."
