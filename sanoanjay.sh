@@ -3,7 +3,7 @@
 # Periksa apakah skrip dijalankan sebagai root
 if [ "$EUID" -ne 0 ]; then
     echo "Harap jalankan skrip ini sebagai root."
-    exit
+    exit 1
 fi
 
 # 1. Tanyakan User ID yang tidak boleh dihapus
@@ -19,21 +19,26 @@ fi
 CONTROLLER_PATH="/var/www/pterodactyl/app/Http/Controllers/Admin/UserController.php"
 
 if [ -f "$CONTROLLER_PATH" ]; then
-    echo "Menambahkan validasi ke UsersController.php..."
-    sed -i "/public function delete(Request \$request, User \$user): RedirectResponse {/a \ \ \ \ \ \ \ \ if (\$user->id === $PROTECTED_USER_ID) { throw new DisplayException('Dilarang Menghapus Admin Utama Panel'); }" $CONTROLLER_PATH
-    echo "Validasi berhasil ditambahkan."
+    echo "Menambahkan validasi ke UserController.php..."
+    if ! grep -q "Dilarang Menghapus Admin Utama Panel" "$CONTROLLER_PATH"; then
+        sed -i "/public function delete(Request \$request, User \$user): RedirectResponse {/a \ \ \ \ if (\$user->id === $PROTECTED_USER_ID) { throw new DisplayException('Dilarang Menghapus Admin Utama Panel'); }" "$CONTROLLER_PATH"
+        echo "Validasi berhasil ditambahkan."
+    else
+        echo "Validasi sudah ada, melewati langkah ini."
+    fi
 else
-    echo "File UsersController.php tidak ditemukan di $CONTROLLER_PATH."
+    echo "File UserController.php tidak ditemukan di $CONTROLLER_PATH."
     exit 1
 fi
 
-# 3. Instal Node.js 16 jika belum ada
-if ! command -v node &>/dev/null || [[ $(node -v | grep -oP '[0-9]+' | head -1) -lt 16 ]]; then
-    echo "Node.js 16 tidak ditemukan. Menginstal Node.js 16..."
-    curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+# 3. Instal Node.js 18 jika belum ada
+NODE_VERSION=$(node -v 2>/dev/null | grep -oP '[0-9]+' | head -1)
+if [ -z "$NODE_VERSION" ] || [ "$NODE_VERSION" -lt 18 ]; then
+    echo "Node.js 18 tidak ditemukan. Menginstal Node.js 18..."
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
     apt-get install -y nodejs
 else
-    echo "Node.js 16 sudah terinstal."
+    echo "Node.js versi $NODE_VERSION sudah terinstal."
 fi
 
 # 4. Instal Yarn jika belum ada
@@ -44,11 +49,13 @@ else
     echo "Yarn sudah terinstal."
 fi
 
-# 5. Jalankan yarn dan build frontend
-cd /var/www/pterodactyl || exit
+# 5. Jalankan Yarn dan build frontend dengan opsi OpenSSL legacy
+cd /var/www/pterodactyl || { echo "Direktori Pterodactyl tidak ditemukan."; exit 1; }
 echo "Menjalankan Yarn..."
 yarn
+
 echo "Membangun aset frontend..."
+export NODE_OPTIONS=--openssl-legacy-provider
 yarn build:production
 
 # 6. Bersihkan cache Laravel
