@@ -15,17 +15,25 @@ if [[ ! "$PROTECTED_USER_ID" =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
-# 2. Sisipkan kode validasi ke Pterodactyl
+# 2. Ganti fungsi delete di Pterodactyl
 CONTROLLER_PATH="/var/www/pterodactyl/app/Http/Controllers/Admin/UserController.php"
 
 if [ -f "$CONTROLLER_PATH" ]; then
-    echo "Menambahkan validasi ke UserController.php..."
-    if ! grep -q "Dilarang Menghapus Admin Utama Panel" "$CONTROLLER_PATH"; then
-        sed -i "/public function delete(Request \$request, User \$user): RedirectResponse {/a \ \ \ \ if (\$user->id === $PROTECTED_USER_ID) { throw new DisplayException('Dilarang Menghapus Admin Utama Panel'); }" "$CONTROLLER_PATH"
-        echo "Validasi berhasil ditambahkan."
-    else
-        echo "Validasi sudah ada, melewati langkah ini."
-    fi
+    echo "Mengganti fungsi delete di UserController.php..."
+
+    sed -i "/public function delete(Request \$request, User \$user): RedirectResponse {/,/^}/c\\
+    public function delete(Request \$request, User \$user): RedirectResponse {\\
+        if (\$user->id === $PROTECTED_USER_ID) {\\
+            throw new DisplayException('Dilarang Menghapus Admin Panel Utama');\\
+        }\\
+        if (\$request->user()->id === \$user->id) {\\
+            throw new DisplayException('Anda tidak dapat menghapus akun Anda sendiri.');\\
+        }\\
+        \$this->deletionService->handle(\$user);\\
+        return redirect()->route('admin.users');\\
+    }" "$CONTROLLER_PATH"
+
+    echo "Fungsi delete berhasil diperbarui."
 else
     echo "File UserController.php tidak ditemukan di $CONTROLLER_PATH."
     exit 1
@@ -58,12 +66,12 @@ echo "Membangun aset frontend..."
 export NODE_OPTIONS=--openssl-legacy-provider
 yarn build:production
 
-# 6. Bersihkan cache Laravel
+# 6. Bersihkan cache Laravel secara manual
 echo "Membersihkan cache Laravel..."
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
+rm -rf bootstrap/cache/*
+rm -rf storage/framework/cache/*
+rm -rf storage/framework/sessions/*
+rm -rf storage/framework/views/*
 
 # 7. Selesai
 echo "Proses selesai. Admin dengan User ID $PROTECTED_USER_ID tidak dapat dihapus."
