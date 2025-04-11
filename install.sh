@@ -560,8 +560,8 @@ install_elysium_theme() {
     echo -e "                                                       "
 
         # Menginstal Tema Elysium
-        REPO_URL="https://github.com/sevsbotz/sevsrawr.git"
-        TEMP_DIR="sevsrawr"
+    REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
+    TEMP_DIR="Autoinstaller-Theme-Pterodactyl"
 
         git clone "$REPO_URL" "$TEMP_DIR" || { echo "Gagal mengkloning repositori."; exit 1; }
 
