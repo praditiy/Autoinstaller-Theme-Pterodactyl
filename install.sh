@@ -559,62 +559,79 @@ install_elysium_theme() {
     echo -e "${GREEN}[+] =============================================== [+]${NC}"
     echo -e "                                                       "
 
-    # Repositori tema
-    REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
-    TEMP_DIR="Autoinstaller-Theme-Pterodactyl"
+# Repositori tema (utama)
+REPO_URL="https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git"
+TEMP_DIR="Autoinstaller-Theme-Pterodactyl"
 
-    echo -e "${GREEN}🔄 Mengkloning repositori...${NC}"
-    git clone --depth=1 "$REPO_URL"
+echo -e "${GREEN}🔄 Mengkloning repositori...${NC}"
+git clone --depth=1 "$REPO_URL" "$TEMP_DIR" || { echo -e "${RED}❌ Gagal mengkloning repositori.${NC}"; exit 1; }
 
-    if [ ! -d "$TEMP_DIR" ]; then
-        echo -e "${RED}❌ Gagal mengkloning repositori.${NC}"
-        exit 1
-    fi
+# Jika folder tidak ada setelah clone
+if [ ! -d "$TEMP_DIR" ]; then
+    echo -e "${RED}❌ Gagal mengkloning repositori.${NC}"
+    exit 1
+fi
 
-    echo -e "${GREEN}📦 Memindahkan dan mengekstrak file...${NC}"
-    mv "$TEMP_DIR/ElysiumTheme.zip" /var/www/
-    unzip -o /var/www/ElysiumTheme.zip -d /var/www/
+echo -e "${GREEN}📦 Memindahkan dan mengekstrak file...${NC}"
+mv "$TEMP_DIR/ElysiumTheme.zip" /var/www/
+unzip -o /var/www/ElysiumTheme.zip -d /var/www/
 
-    echo -e "${GREEN}🧹 Membersihkan file sementara...${NC}"
-    rm -rf "$TEMP_DIR" /var/www/ElysiumTheme.zip
+echo -e "${GREEN}🧹 Membersihkan file sementara...${NC}"
+rm -rf "$TEMP_DIR" /var/www/ElysiumTheme.zip
+cd /root
 
-    echo -e "${GREEN}🔑 Menyiapkan APT keyring untuk Node.js...${NC}"
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
+# Tambahan dari kode bawah (jika belum ada)
+echo -e "${GREEN}🔧 Menginstal NVM dan Node.js 16 (tambahan)...${NC}"
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+nvm install 16
 
-    echo -e "${GREEN}📌 Menambahkan repository Node.js...${NC}"
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+# Menyiapkan APT keyring untuk Node.js
+echo -e "${GREEN}🔑 Menyiapkan APT keyring untuk Node.js...${NC}"
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
 
-    echo -e "${GREEN}📦 Mengupdate sistem dan menginstal dependensi...${NC}"
-    sudo apt update
-    sudo apt install -y nodejs npm openssl
+# Menambahkan repository Node.js 18
+echo -e "${GREEN}📌 Menambahkan repository Node.js...${NC}"
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 
-    echo -e "${GREEN}🔍 Mengecek versi OpenSSL dan Node.js...${NC}"
-    echo "OpenSSL version: $(openssl version)"
-    echo "Node.js OpenSSL version: $(node -p 'process.versions.openssl')"
+# Update sistem dan install dependensi
+echo -e "${GREEN}📦 Mengupdate sistem dan menginstal dependensi...${NC}"
+sudo apt update
+sudo apt install -y nodejs npm openssl
 
-    echo -e "${GREEN}📦 Menginstal Yarn...${NC}"
-    npm i -g yarn
+# Mengecek versi OpenSSL dan Node.js
+echo -e "${GREEN}🔍 Mengecek versi OpenSSL dan Node.js...${NC}"
+echo "OpenSSL version: $(openssl version)"
+echo "Node.js OpenSSL version: $(node -p 'process.versions.openssl')"
 
-    echo -e "${GREEN}⚙️ Mempersiapkan Pterodactyl...${NC}"
-    cd /var/www/pterodactyl
-    yarn
+# Menginstal Yarn
+echo -e "${GREEN}📦 Menginstal Yarn...${NC}"
+npm i -g yarn
 
-    echo -e "${GREEN}🚀 Membangun tema dengan Yarn...${NC}"
-    export NODE_OPTIONS=--openssl-legacy-provider
-    yarn build:production
+# Build tema
+echo -e "${GREEN}⚙️ Mempersiapkan Pterodactyl...${NC}"
+cd /var/www/pterodactyl
+yarn
 
-    echo -e "${GREEN}🔄 Menjalankan Artisan untuk update database...${NC}"
-    php artisan migrate
-    php artisan view:clear
+echo -e "${GREEN}🚀 Membangun tema dengan Yarn...${NC}"
+export NODE_OPTIONS=--openssl-legacy-provider
+yarn build:production
 
-    echo -e "                                                       "
-    echo -e "${GREEN}[+] =============================================== [+]${NC}"
-    echo -e "${GREEN}[+]          ELYSIUM THEME BERHASIL DIINSTALL       [+]${NC}"
-    echo -e "${GREEN}[+] =============================================== [+]${NC}"
-    echo -e "                                                       "
+# Artisan command
+echo -e "${GREEN}🔄 Menjalankan Artisan untuk update database...${NC}"
+php artisan migrate
+php artisan view:clear
 
-    sleep 2
+# Output akhir
+echo -e "                                                       "
+echo -e "${GREEN}[+] =============================================== [+]${NC}"
+echo -e "${GREEN}[+]          ELYSIUM THEME BERHASIL DIINSTALL       [+]${NC}"
+echo -e "${GREEN}[+] =============================================== [+]${NC}"
+echo -e "                                                       "
+
+sleep 2
 }
 
 # Main script
