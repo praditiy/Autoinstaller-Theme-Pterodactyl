@@ -593,6 +593,76 @@ install_elysium_theme() {
     echo -e "                                                       "
 }
 
+installThemeQuestion(){
+    while true; do
+        read -p "Are you sure that you want to install the theme [y/n]? " yn
+        case $yn in
+            [Yy]* ) installTheme_nightcore; break;;
+            [Nn]* ) exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
+
+installTheme_nightcore(){
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${RESET}"
+    echo -e "${GREEN}[+]          INSTALLASI NIGHTCORE THEME           [+]${RESET}"
+    echo -e "${GREEN}[+] =============================================== [+]${RESET}"
+    echo -e "                                                       "
+
+    apt install sudo -y > /dev/null 2>&1
+    cd /var/www/ > /dev/null 2>&1
+
+    echo -e "${GREEN}Backup panel lama...${RESET}"
+    tar -cvf Pterodactyl_Nightcore_Themebackup.tar.gz pterodactyl > /dev/null 2>&1
+
+    echo -e "${GREEN}Mengunduh theme Nightcore...${RESET}"
+    git clone https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git > /dev/null 2>&1
+    mv Autoinstaller-Theme-Pterodactyl/NightcoreTheme.zip /var/www/
+    unzip -o /var/www/NightcoreTheme.zip -d /var/www/
+    rm -rf Autoinstaller-Theme-Pterodactyl /var/www/NightcoreTheme.zip
+
+    echo -e "${GREEN}Menghapus resource theme lama jika ada...${RESET}"
+    rm /var/www/pterodactyl/resources/scripts/Pterodactyl_Nightcore_Theme.css > /dev/null 2>&1
+    rm /var/www/pterodactyl/resources/scripts/index.tsx > /dev/null 2>&1
+
+    echo -e "${GREEN}Memindahkan file theme baru...${RESET}"
+    mv /var/www/NightcoreTheme/index.tsx /var/www/pterodactyl/resources/scripts/index.tsx > /dev/null 2>&1
+    mv /var/www/NightcoreTheme/Pterodactyl_Nightcore_Theme.css /var/www/pterodactyl/resources/scripts/Pterodactyl_Nightcore_Theme.css > /dev/null 2>&1
+    rm -rf /var/www/NightcoreTheme
+
+    echo -e "${GREEN}Menyiapkan environment Node.js...${RESET}"
+    curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash - > /dev/null 2>&1
+    apt update -y > /dev/null 2>&1
+    apt install nodejs -y > /dev/null 2>&1
+    apt install npm -y > /dev/null 2>&1
+
+    NODE_VERSION=$(node -v)
+    REQUIRED_VERSION="v16.20.2"
+    if [ "$NODE_VERSION" != "$REQUIRED_VERSION" ]; then
+        echo -e "${GREEN}Mengatur Node.js ke versi ${YELLOW}${REQUIRED_VERSION}${RESET}"
+        sudo npm install -g n > /dev/null 2>&1
+        sudo n 16 > /dev/null 2>&1
+    fi
+
+    npm i -g yarn > /dev/null 2>&1
+    cd /var/www/pterodactyl
+    yarn > /dev/null 2>&1
+
+    echo -e "${GREEN}Membangun ulang panel...${RESET}"
+    yarn build:production > /dev/null 2>&1
+
+    echo -e "${GREEN}Mengoptimalkan panel...${RESET}"
+    sudo php artisan optimize:clear > /dev/null 2>&1
+
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${RESET}"
+    echo -e "${GREEN}[+]      NIGHTCORE THEME BERHASIL DIINSTALL        [+]${RESET}"
+    echo -e "${GREEN}[+] =============================================== [+]${RESET}"
+    echo -e "                                                       "
+}
+
 # Main script
 install_jq
 
@@ -628,16 +698,17 @@ while true; do
   echo "9. Install Depend"
   echo "10. Install Tema Nebula (wajib install depend terlebih dahulu)"
   echo "11. Install Tema Elysium"
+  echo "12. Install Tema Nightcore"
   echo "x. Exit"
   echo -e "Masukkan pilihan 1/2/3/.../x:"
   read -r MENU_CHOICE
   clear
 
   case "$MENU_CHOICE" in
-    1)
+      1)
       install_theme
       ;;
-    2)
+      2)
       uninstall_theme
       ;;
       3)
@@ -666,6 +737,9 @@ while true; do
       ;;
       11)
       install_elysium_theme
+      ;;
+      12)
+      installThemeQuestion
       ;;
     x)
       echo "Keluar dari skrip."
