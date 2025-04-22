@@ -611,49 +611,52 @@ installTheme_nightcore(){
     echo -e "${GREEN}[+] =============================================== [+]${RESET}"
     echo -e "                                                       "
 
+    echo -e "${GREEN}Installing ${YELLOW}sudo${GREEN} if not installed${RESET}"
     apt install sudo -y > /dev/null 2>&1
     cd /var/www/ > /dev/null 2>&1
-
-    echo -e "${GREEN}Backup panel lama...${RESET}"
+    echo -e "${GREEN}Unpack the themebackup...${RESET}"
     tar -cvf Pterodactyl_Nightcore_Themebackup.tar.gz pterodactyl > /dev/null 2>&1
-
-    echo -e "${GREEN}Mengunduh theme Nightcore...${RESET}"
+    echo -e "${GREEN}Installing theme... ${RESET}"
+    cd /var/www/pterodactyl > /dev/null 2>&1
+    echo -e "${GREEN}Removing old theme if exist${RESET}"
+    rm -r Pterodactyl_Nightcore_Theme > /dev/null 2>&1
+    echo -e "${GREEN}Download the Theme${RESET}"
     git clone https://github.com/Bangsano/Autoinstaller-Theme-Pterodactyl.git > /dev/null 2>&1
-    mv Autoinstaller-Theme-Pterodactyl/NightcoreTheme.zip /var/www/
-    unzip -o /var/www/NightcoreTheme.zip -d /var/www/
-    rm -rf Autoinstaller-Theme-Pterodactyl /var/www/NightcoreTheme.zip
-
-    echo -e "${GREEN}Menghapus resource theme lama jika ada...${RESET}"
+    cd Autoinstaller-Theme-Pterodactyl > /dev/null 2>&1
+    echo -e "${GREEN}Removing old theme resources if exist${RESET}"
     rm /var/www/pterodactyl/resources/scripts/Pterodactyl_Nightcore_Theme.css > /dev/null 2>&1
     rm /var/www/pterodactyl/resources/scripts/index.tsx > /dev/null 2>&1
-
-    echo -e "${GREEN}Memindahkan file theme baru...${RESET}"
-    mv /var/www/NightcoreTheme/index.tsx /var/www/pterodactyl/resources/scripts/index.tsx > /dev/null 2>&1
-    mv /var/www/NightcoreTheme/Pterodactyl_Nightcore_Theme.css /var/www/pterodactyl/resources/scripts/Pterodactyl_Nightcore_Theme.css > /dev/null 2>&1
-    rm -rf /var/www/NightcoreTheme
-
-    echo -e "${GREEN}Menyiapkan environment Node.js...${RESET}"
+    echo -e "${GREEN}Moving the new theme files to directory${RESET}"
+    mv index.tsx /var/www/pterodactyl/resources/scripts/index.tsx > /dev/null 2>&1
+    mv Pterodactyl_Nightcore_Theme.css /var/www/pterodactyl/resources/scripts/Pterodactyl_Nightcore_Theme.css > /dev/null 2>&1
+    cd /var/www/pterodactyl > /dev/null 2>&1
+    
     curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash - > /dev/null 2>&1
     apt update -y > /dev/null 2>&1
     apt install nodejs -y > /dev/null 2>&1
-    apt install npm -y > /dev/null 2>&1
-
+    
     NODE_VERSION=$(node -v)
     REQUIRED_VERSION="v16.20.2"
     if [ "$NODE_VERSION" != "$REQUIRED_VERSION" ]; then
-        echo -e "${GREEN}Mengatur Node.js ke versi ${YELLOW}${REQUIRED_VERSION}${RESET}"
+        echo -e "${GREEN}Node.js version is not ${YELLOW}${REQUIRED_VERSION}${GREEN}. Version: ${YELLOW}${NODE_VERSION}${RESET}"
+        echo -e "${GREEN}Set version to ${YELLOW}v16.20.2${GREEN}... ${RESET}"
         sudo npm install -g n > /dev/null 2>&1
         sudo n 16 > /dev/null 2>&1
+        node -v > /dev/null 2>&1
+        npm -v > /dev/null  2>&1
+        echo -e "${GREEN}Now the default version is ${YELLOW}${REQUIRED_VERSION}"
+    else
+        echo -e "${GREEN}Node.js Version is compatible: ${YELLOW}${NODE_VERSION} ${RESET}"
     fi
 
+    apt install npm -y > /dev/null 2>&1
     npm i -g yarn > /dev/null 2>&1
-    cd /var/www/pterodactyl
     yarn > /dev/null 2>&1
 
-    echo -e "${GREEN}Membangun ulang panel...${RESET}"
+    cd /var/www/pterodactyl > /dev/null 2>&1
+    echo -e "${GREEN}Rebuilding the Panel...${RESET}"
     yarn build:production > /dev/null 2>&1
-
-    echo -e "${GREEN}Mengoptimalkan panel...${RESET}"
+    echo -e "${GREEN}Optimizing the Panel...${RESET}"
     sudo php artisan optimize:clear > /dev/null 2>&1
 
     echo -e "                                                       "
