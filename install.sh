@@ -21,9 +21,9 @@ display_welcome() {
   echo -e "Dilarang Keras Share Bebas."
   echo -e ""
   echo -e "𝗧𝗘𝗟𝗘𝗚𝗥𝗔𝗠 :"
-  echo -e "@batuofc"
+  echo -e "@Nand-Offc"
   echo -e "𝗪𝗛𝗔𝗧𝗦𝗔𝗣𝗣 :"
-  echo -e "+6289605983169"
+  echo -e "+62882003427100"
   sleep 4
   clear
 }
@@ -62,14 +62,14 @@ check_token() {
   echo -e "${YELLOW}MASUKKAN AKSES TOKEN: ${NC}"
   read -r USER_TOKEN
 
-  if [ "$USER_TOKEN" = "sanoofc" ]; then
+  if [ "$USER_TOKEN" = "NandOffc" ]; then
     echo -e "${GREEN}AKSES BERHASIL${NC}}"
   else
     echo -e "${GREEN}Token Salah! Beli Kode Token Di Sano Official${NC}"
-    echo -e "${YELLOW}TELEGRAM : @batuofc${NC}"
-    echo -e "${YELLOW}WHATSAPP : +6289605983169${NC}"
+    echo -e "${YELLOW}TELEGRAM : @Nand-Offc${NC}"
+    echo -e "${YELLOW}WHATSAPP : +62882003427100${NC}"
     echo -e "${YELLOW}HARGA TOKEN : 10K FREE UPDATE JIKA ADA TOKEN BARU${NC}"
-    echo -e "${YELLOW}© SANO OFFICIAL${NC}"
+    echo -e "${YELLOW}© NAND-OFFC${NC}"
     exit 1
   fi
   clear
